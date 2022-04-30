@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 class DetailTableViewCell: UITableViewCell {
     
@@ -13,7 +14,7 @@ class DetailTableViewCell: UITableViewCell {
     
     private lazy var destinationLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14.0, weight: .bold)
+        label.font = .systemFont(ofSize: 16.0, weight: .bold)
         label.text = "안녕하세요"
         
         return label
@@ -27,24 +28,19 @@ class DetailTableViewCell: UITableViewCell {
         return label
     }()
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        setupUI()
-    }
-    
     func setupUI() {
         [ destinationLabel, remainingTimeLabel ]
             .forEach { contentView.addSubview($0) }
         
         destinationLabel.snp.makeConstraints {
             $0.top.equalToSuperview().inset(8)
-            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.leading.equalToSuperview().inset(16)
         }
         
         remainingTimeLabel.snp.makeConstraints {
             $0.top.equalTo(destinationLabel.snp.bottom).offset(8)
-            $0.leading.trailing.equalToSuperview()
+            $0.leading.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview().inset(8)
         }
     }
 }

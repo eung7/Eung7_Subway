@@ -7,8 +7,11 @@
 
 import SnapKit
 import UIKit
+import Alamofire
 
 class MainViewController: UIViewController {
+    
+    var stations: [Station] = []
     
     private lazy var tableView : UITableView = {
         let tableView = UITableView()
@@ -35,6 +38,12 @@ class MainViewController: UIViewController {
         setupUI()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        fetchSubway(with: "서울역")
+        
+        print(stations)
+    }
+    
     private func setupNavigationBar() {
         navigationItem.title = "지하철 도착 정보"
         navigationItem.searchController = searchController
@@ -47,6 +56,22 @@ class MainViewController: UIViewController {
         tableView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+    }
+    
+    func fetchSubway(with station: String) {
+        let url = "http://openapi.seoul.go.kr:8088/sample/json/SearchInfoBySubwayNameService/1/5/\(station)"
+        
+        AF
+            .request(url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
+            .responseDecodable(of: SearchInfoBySubwayNameServiceModel.self) {[weak self] res in
+                switch res.result {
+                case .success(let response):
+                    self?.stations = response.searchInfo.row
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+
     }
 }
 
@@ -82,6 +107,8 @@ extension MainViewController: UITableViewDataSource {
 extension MainViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("Hi! I'm \(indexPath.row)")
+        let vc = DetailViewController()
+        
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
