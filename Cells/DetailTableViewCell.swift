@@ -11,11 +11,12 @@ import SnapKit
 class DetailTableViewCell: UITableViewCell {
     
     static let identifier = "DetailTableViewCell"
+    var stationName: String?
+    var arvlMsg: String?
     
     private lazy var destinationLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16.0, weight: .bold)
-        label.text = "안녕하세요"
         
         return label
     }()
@@ -23,7 +24,6 @@ class DetailTableViewCell: UITableViewCell {
     private lazy var remainingTimeLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14.0, weight: .regular)
-        label.text = "안녕하세요"
         
         return label
     }()
@@ -43,4 +43,10 @@ class DetailTableViewCell: UITableViewCell {
             $0.bottom.equalToSuperview().inset(8)
         }
     }
+    
+    func setupData(stationName: String, arvlMsg: String) {
+        destinationLabel.text = stationName
+        remainingTimeLabel.text = arvlMsg
+    }
 }
+

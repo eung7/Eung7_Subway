@@ -15,7 +15,6 @@ class MainViewController: UIViewController {
     
     private lazy var tableView : UITableView = {
         let tableView = UITableView()
-//        tableView.isHidden = true
         tableView.dataSource = self
         tableView.delegate = self
         tableView.backgroundColor = .systemBackground
@@ -26,6 +25,7 @@ class MainViewController: UIViewController {
     private lazy var searchController: UISearchController = {
         let searchController = UISearchController()
         searchController.delegate = self
+        searchController.searchBar.delegate = self
         searchController.obscuresBackgroundDuringPresentation = false
         
         return searchController
@@ -36,12 +36,6 @@ class MainViewController: UIViewController {
         
         setupNavigationBar()
         setupUI()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        fetchSubway(with: "서울역")
-        
-        print(stations)
     }
     
     private func setupNavigationBar() {
@@ -67,11 +61,12 @@ class MainViewController: UIViewController {
                 switch res.result {
                 case .success(let response):
                     self?.stations = response.searchInfo.row
+                    self?.tableView.reloadData()
                 case .failure(let error):
                     print(error.localizedDescription)
                 }
             }
-
+            .resume()
     }
 }
 
@@ -86,18 +81,32 @@ extension MainViewController: UISearchControllerDelegate {
     }
 }
 
+extension MainViewController: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let station = searchBar.text else { return }
+        fetchSubway(with: station)
+        tableView.reloadData()
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        fetchSubway(with: searchText)
+        tableView.reloadData()
+    }
+}
+
 extension MainViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return stations.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "MainTableViwCell")
         
         var contents = cell.defaultContentConfiguration()
-        contents.text = "안녕하세요 !!"
-        contents.secondaryText = "저는 김응철입니다."
+        contents.text = stations[indexPath.row].name
+        contents.secondaryText = stations[indexPath.row].line
         cell.contentConfiguration = contents
 
         return cell
@@ -107,7 +116,7 @@ extension MainViewController: UITableViewDataSource {
 extension MainViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let vc = DetailViewController()
+        let vc = DetailViewController(stationName: stations[indexPath.row].name)
         
         navigationController?.pushViewController(vc, animated: true)
     }
